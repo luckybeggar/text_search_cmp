@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Parse text to n-grams
  * User: lucky_beggar
@@ -12,15 +13,14 @@ class Shingles_NGramParser
     public function __construct($n, $logger = null)
     {
         $this->n = $n;
-        if($logger !== null)
-        {
+        if ($logger !== null) {
             self::$logger = $logger;
         }
     }
 
     public static function log($message)
     {
-        if(self::$logger !== null) {
+        if (self::$logger !== null) {
             self::$logger->debug($message);
         }
     }
@@ -32,20 +32,25 @@ class Shingles_NGramParser
 
     public function parseText($text)
     {
-        $patternClearBadChars = '/[^a-zA-Zа-яА-ЯёЁ0-9]/smi';
-        $patternClearShortWords = '/(\s[a-zA-Zа-яА-ЯёЁ0-9]{0,3}\s)/smi';
+        $patternClearBadChars     = '/[^a-zA-Zа-яА-ЯёЁ0-9]/sm';
         $patternClearDoubleSpaces = '/\s+/smi';
-        $clearText = preg_replace($patternClearBadChars, ' ', $text);
-        $clearText = preg_replace($patternClearShortWords, ' ', $clearText);
-        $clearText = preg_replace($patternClearDoubleSpaces, ' ', $clearText);
-        $wordList = explode(' ', $clearText);
-        $offset = 0;
+        $clearText                = preg_replace($patternClearBadChars, ' ', $text);
+        $clearText                = ' ' . $clearText . ' ';
+        $clearText                = preg_replace($patternClearDoubleSpaces, ' ', $clearText);
+        $clearText                = trim($clearText);
+        $clearText                = strtoupper($clearText);
+        $wordList                 = explode(' ', $clearText);
+        foreach ($wordList as $wordId => $word) {
+            if (mb_strlen($word) < 4) {
+                unset($wordList[$wordId]);
+            }
+        }
+        $offset    = 0;
         $ngramList = array();
         do {
             $currentNgramWords = array_slice($wordList, $offset, $this->n);
-            $currentNgram = implode(' ', $currentNgramWords);
-//            self::log(print_r($currentNgram, 1));
-            $ngramList[] = $currentNgram;
+            $currentNgram      = implode(' ', $currentNgramWords);
+            $ngramList[]       = $currentNgram;
             $offset++;
         } while ($offset < (count($wordList) - $this->n));
 
