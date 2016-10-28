@@ -44,4 +44,21 @@ for ($i = 0; $i < (mb_strlen($hs) - $ln + 1); $i++) {
     $logger->info('DEBUG f1 is: ' . $f1 . "\n");
 }
 
+$frag = 'ABCD';
+$tHash = $cr->circleHash($frag);
+$logger->info($frag. ' COLD IS '. $tHash);
+
+$frag2 = 'BCDE';
+$tHash2 = $cr->circleHash($frag2);
+$logger->info($frag2. ' COLD IS '. $tHash2);
+
+
+$tHash3 = $cr->circleHash($frag2, $tHash, 'A');
+$logger->info($frag2. ' HOT IS '. $tHash3);
+
+
+$tHash4 = $cr->hashSubChar($frag2, $tHash, 'A');
+$tHash4 = $cr->hashAddChar($tHash4, 'E');
+
+$logger->info($frag2. ' HOT A-S IS '. $tHash4);
 
