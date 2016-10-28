@@ -38,7 +38,7 @@ class Shingles_NGramParser
         $clearText                = ' ' . $clearText . ' ';
         $clearText                = preg_replace($patternClearDoubleSpaces, ' ', $clearText);
         $clearText                = trim($clearText);
-        $clearText                = strtoupper($clearText);
+        $clearText                = mb_strtoupper($clearText);
         $wordList                 = explode(' ', $clearText);
         foreach ($wordList as $wordId => $word) {
             if (mb_strlen($word) < 4) {
