@@ -102,7 +102,7 @@ class Shingles_CarpRabin
         return $hash;
     }
 
-    public function circleColdHash($curString, $prevHash = null, $prevChar = null)
+    public function circleHash($curString, $prevHash = null, $prevChar = null)
     {
         if ($this->baseMod == null) {
             throw new Exception ('No base module defined!');
@@ -112,26 +112,23 @@ class Shingles_CarpRabin
             $curChar = mb_substr($curString, 0, 1);
             $hash    = gmp_strval(gmp_mod(self::unistr_to_ords($curChar), $this->baseMod));
             for ($i = 1; $i < $len; $i++) {
-                $hash      = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
-                $curChar   = mb_substr($curString, $i, 1);
-                $curOrd    = self::unistr_to_ords($curChar);
-//                $curOrdHex = base_convert($curOrd, 10, 16);
-
+                $hash    = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
+                $curChar = mb_substr($curString, $i, 1);
+                $curOrd  = self::unistr_to_ords($curChar);
                 $hash    = gmp_strval($hash);
                 $curOrd  = gmp_strval($curOrd);
                 $hash    = gmp_mod(gmp_add($hash, $curOrd), $this->baseMod);
                 $hash    = gmp_strval($hash);
-//                $hashHex = base_convert($hash, 10, 16);
-//                self::log("DEBUG i: $i curchar: $curChar curOrd: $curOrdHex hash: $hashHex");
             }
         } elseif ($prevChar) {
-            $hash        = $this->hashSubChar($curString, $prevHash, $prevChar);
+            $hash    = $this->hashSubChar($curString, $prevHash, $prevChar);
             $newChar = mb_substr($curString, -1);
-            $hash        = $this->hashAddChar($hash, $newChar);
-            $hash        = gmp_strval($hash);
+            $hash    = $this->hashAddChar($hash, $newChar);
+            $hash    = gmp_strval($hash);
         } else {
             throw new Exception ('No previous Char but Previous hash passed!');
         }
+
         return $hash;
     }
 

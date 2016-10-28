@@ -21,17 +21,17 @@ $cr->initSearch(mb_strlen($needle), mb_strlen($hs));
 $logger->info('DEBUG needle is: ' . $needle . "\n");
 
 
-$needleHash = $cr->circleColdHash($needle);
+$needleHash = $cr->circleHash($needle);
 
 $ln = mb_strlen($needle);
 for ($i = 0; $i < (mb_strlen($hs) - $ln + 1); $i++) {
     $frag = mb_substr($hs, $i, $ln);
     $logger->info('DEBUG frag is: ' . $frag . "\n");
     if (isset($tHash)) {
-        $tHash = $cr->circleColdHash($frag, $tHash, $f1);
+        $tHash = $cr->circleHash($frag, $tHash, $f1);
         $logger->info("DEBUG hot hash from old hash: $tHash frag: $frag and prev char: $f1 is:  $tHash \n");
     } else {
-        $tHash = $cr->circleColdHash($frag);
+        $tHash = $cr->circleHash($frag);
         $logger->info("DEBUG cold hash from frag $frag is: $tHash\n");
     }
     if ((int)$tHash == (int)$needleHash) {
