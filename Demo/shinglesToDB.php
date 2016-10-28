@@ -48,8 +48,7 @@ $sqlGetText = "SELECT {$sourceConfig['input_text_id_field']}, {$sourceConfig['in
 $sqlSaveShingle = "INSERT IGNORE INTO {$sourceConfig['output_text_db']} 
 SET text_id = :text_id, shingle_text = :shingle_text, shingle_hash = :shingle_hash";
 
-$idtTo = bcsub($limits->max_id, $stepSize);
-for ($id = 0; $id < $idtTo; $id = bcadd($id, $stepSize)) {
+for ($id = $limits->min_id; $id < $limits->max_id; $id = bcadd($id, $stepSize)) {
     $logger->info('STEP ID: ' . $id . ' OF ' . $idtTo);
     $textListRequest = $db->prepare($sqlGetText);
     $textListRequest->bindParam('id_from', $id);
