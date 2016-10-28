@@ -16,7 +16,6 @@ class Shingles_CarpRabin
      */
     public static $logger;
 
-
     /**
      * Turns an array of ordinal values into a string of unicode characters
      *
@@ -67,23 +66,43 @@ class Shingles_CarpRabin
 
     public static function log($message)
     {
-        if(self::$logger !== null) {
+        if (self::$logger !== null) {
             self::$logger->debug($message);
         }
     }
 
     public function __construct($logger = null)
     {
-        if($logger !== null)
-        {
+        if ($logger !== null) {
             self::$logger = $logger;
         }
-        if(!function_exists('gmp_strval')) {
+        if (!function_exists('gmp_strval')) {
             throw new Exception('GMP required. http://php.net/manual/en/gmp.installation.php');
         }
     }
 
-    public function circleHashMod($curString, $prevHash = null, $prevChar = null)
+    public function hashSubChar($curString, $prevHash, $prevChar)
+    {
+        $prevOrd     = self::unistr_to_ords($prevChar);
+        $len         = mb_strlen($curString);
+        $positionMod = gmp_mod(gmp_pow(self::$numBase, $len - 1), $this->baseMod);
+        $prevOrdSub  = gmp_mod(gmp_mul($prevOrd, $positionMod), $this->baseMod);
+        $hash        = gmp_sub($prevHash, $prevOrdSub);
+
+        return $hash;
+    }
+
+    public function hashAddChar($hash, $newChar)
+    {
+        $newOrd = self::unistr_to_ords($newChar);
+        $hash   = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
+        $hash   = gmp_mod(gmp_add($hash, $newOrd), $this->baseMod);
+        $hash   = gmp_strval($hash);
+
+        return $hash;
+    }
+
+    public function circleColdHash($curString, $prevHash = null, $prevChar = null)
     {
         if ($this->baseMod == null) {
             throw new Exception ('No base module defined!');
@@ -96,45 +115,33 @@ class Shingles_CarpRabin
                 $hash      = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
                 $curChar   = mb_substr($curString, $i, 1);
                 $curOrd    = self::unistr_to_ords($curChar);
-                $curOrdHex = base_convert($curOrd, 10, 16);
+//                $curOrdHex = base_convert($curOrd, 10, 16);
 
                 $hash    = gmp_strval($hash);
                 $curOrd  = gmp_strval($curOrd);
                 $hash    = gmp_mod(gmp_add($hash, $curOrd), $this->baseMod);
                 $hash    = gmp_strval($hash);
-                $hashHex = base_convert($hash, 10, 16);
-                //self::log("DEBUG i: $i curchar: $curChar curOrd: $curOrdHex hash: $hashHex");
+//                $hashHex = base_convert($hash, 10, 16);
+//                self::log("DEBUG i: $i curchar: $curChar curOrd: $curOrdHex hash: $hashHex");
             }
         } elseif ($prevChar) {
+            $hash        = $this->hashSubChar($curString, $prevHash, $prevChar);
             $newChar = mb_substr($curString, -1);
-            $newOrd  = self::unistr_to_ords($newChar);
-
-            $prevOrd     = self::unistr_to_ords($prevChar);
-            $positionMod = gmp_mod(gmp_pow(self::$numBase, $len - 1), $this->baseMod);
-            $prevOrdSub  = gmp_mod(gmp_mul($prevOrd, $positionMod), $this->baseMod);
-            $hash        = gmp_sub($prevHash, $prevOrdSub);
-            $hash        = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
-            $hash        = gmp_mod(gmp_add($hash, $newOrd), $this->baseMod);
+            $hash        = $this->hashAddChar($hash, $newChar);
             $hash        = gmp_strval($hash);
         } else {
             throw new Exception ('No previous Char but Previous hash passed!');
         }
-
         return $hash;
     }
 
-    public $needle, $haystack, $n, $m, $p, $baseMod;
+    public $haystack, $n, $m, $p, $baseMod;
 
-    public function initSearch($needle, $haystack)
+    public function initSearch($needleLength, $haystackLength)
     {
-        $this->needle   = $needle;
-        $this->haystack = $haystack;
-        $n              = mb_strlen($this->needle);
-        self::log('DEBUG N: ' . $n );
-
-        $m = mb_strlen($this->haystack);
-        self::log('DEBUG M: ' . $m);
-        $this->p = gmp_strval(gmp_mul($n, gmp_pow($m, 2)));
+        self::log('NEEDLE LENGTH: ' . $needleLength);
+        self::log('HAYSTACK LENGTH: ' . $haystackLength);
+        $this->p = gmp_strval(gmp_mul($needleLength, gmp_pow($haystackLength, 2)));
         self::log('DEBUG p: ' . $this->p);
 
         $randomDivPart = rand(7, 99);
