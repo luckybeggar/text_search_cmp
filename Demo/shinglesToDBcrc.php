@@ -28,7 +28,7 @@ $sourceConfig  = $config[$currentSource];
 $logger->info('source: ' . $currentSource);
 $logger->info('source config: ' . print_r($sourceConfig, 1));
 
-$cr->initSearch(200,10000);
+$cr->initSearch(200, 10000);
 
 
 $sqlCount = "SELECT min({$sourceConfig['input_text_id_field']}) as min_id, max({$sourceConfig['input_text_id_field']}) as max_id FROM {$sourceConfig['input_text_db']}";
@@ -65,34 +65,8 @@ for ($id = $limits->min_id; $id < $limits->max_id; $id = bcadd($id, $stepSize)) 
         $prevHash = null;
         $prevChar = null;
         foreach ($shingleList as $shingle) {
-            if ($prevHash == null) {
-                $curHash = $cr->circleHash($shingle);
-            } else {
-                $curHash = $prevHash;
-
-                $subWord = mb_substr($prevShingle, 0, mb_strpos($prevShingle, ' ') + 1);
-//                $logger->info('SUBWORD: "' . $subWord . '"');
-                for ($i = 0; $i < mb_strlen($subWord); $i++) {
-                    $subChar = mb_substr($subWord, $i, 1);
-//                    $logger->info('PS: "' . $prevShingle . '"');
-//                    $logger->info('SUB CHAR: "' . $subChar . '"');
-//                    $curHash    = $cr->hashSubChar($prevShingle, $curHash, $subChar);
-                    $prevShingle = mb_substr($prevShingle, 1);
-                }
-                $addWord = mb_substr($shingle, mb_strrpos($shingle, ' '));
-//                $logger->info('ADDWORD: "' . $addWord . '"');
-                for ($i = 0; $i < mb_strlen($addWord); $i++) {
-                    $addChar = mb_substr($addWord, $i, 1);
-                    $curHash = $cr->hashAddChar($curHash, $addChar);
-//                    $logger->info('ADD CHAR: "' . $addChar . '"');
-                }
-                $curHash = gmp_strval($curHash);
-//                die();
-            }
-//            $logger->info('for shingle "' . $shingle . '" hash is: ' . $curHash);
-            $prevHash    = $curHash;
-            $prevShingle = $shingle;
-            $saver       = $db->prepare($sqlSaveShingle);
+            $curHash = crc32($shingle);
+            $saver   = $db->prepare($sqlSaveShingle);
             $saver->bindParam('text_id', $textMeta['id']);
             $saver->bindParam('shingle_hash', $curHash);
             $saver->bindParam('shingle_text', $shingle);
