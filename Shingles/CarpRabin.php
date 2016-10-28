@@ -148,4 +148,10 @@ class Shingles_CarpRabin
         $this->baseMod = gmp_strval(gmp_nextprime(gmp_mul(gmp_div_q($this->p, $randomDivPart), $randomIndPart)));
         self::log('DEBUG BASE MOD: ' . $this->baseMod);
     }
+
+    public function initByCurrentPrime($curPrime)
+    {
+        $this->baseMod = $curPrime;
+        self::log('DEBUG BASE MOD: ' . $this->baseMod);
+    }
 }

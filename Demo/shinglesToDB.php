@@ -17,8 +17,6 @@ $logger = new Common_Logger(8);
 $parser = new Shingles_NGramParser(5, $logger);
 $cr     = new Shingles_CarpRabin($logger);
 
-$cr->initSearch(42, 2000);
-
 $logger->info('db config: ' . print_r($config['db'], 1));
 $db            = new PDO(
     $config['db']['init'],
@@ -29,6 +27,9 @@ $currentSource = $config['current']['source'];
 $sourceConfig  = $config[$currentSource];
 $logger->info('source: ' . $currentSource);
 $logger->info('source config: ' . print_r($sourceConfig, 1));
+
+$cr->initByCurrentPrime($sourceConfig['cr_prime']);
+
 
 $sqlCount = "SELECT min({$sourceConfig['input_text_id_field']}) as min_id, max({$sourceConfig['input_text_id_field']}) as max_id FROM {$sourceConfig['input_text_db']}";
 $limits   = $db->query($sqlCount, PDO::FETCH_OBJ)->fetchObject();
