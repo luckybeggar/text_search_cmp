@@ -26,7 +26,6 @@ class Hash_RK extends Hash
      */
     protected $prevHash;
 
-
     /**
      * Hash_RK constructor.
      *
@@ -75,31 +74,32 @@ class Hash_RK extends Hash
 
     public function getHash($curSubstring, $prevSubstring)
     {
-            if ($prevSubstring == null) {
-                $curHash = $this->circleHash($curSubstring);
-            } else {
+        if ($prevSubstring == null) {
+            $curHash = $this->circleHash($curSubstring);
+        } else {
 //                self::log('DEBUG PREV SUBSTR: "' . $prevSubstring . '"');
 
-                $curHash = $this->prevHash;
-                $subWord = mb_substr($prevSubstring, 0, mb_strpos($prevSubstring, ' ') + 1);
+            $curHash = $this->prevHash;
+            $subWord = mb_substr($prevSubstring, 0, mb_strpos($prevSubstring, ' ') + 1);
 //                self::log('SUBWORD: "' . $subWord . '"');
-                for ($i = 0; $i < mb_strlen($subWord); $i++) {
-                    $subChar = mb_substr($subWord, $i, 1);
+            for ($i = 0; $i < mb_strlen($subWord); $i++) {
+                $subChar = mb_substr($subWord, $i, 1);
 //                    self::log('PS: "' . $prevSubstring . '"');
 //                    self::log('SUB CHAR: "' . $subChar . '"');
-                    $curHash    = $this->hashSubChar($prevSubstring, $curHash, $subChar);
-                    $prevSubstring = mb_substr($prevSubstring, 1);
-                }
-                $addWord = mb_substr($curSubstring, mb_strrpos($curSubstring, ' '));
-//                self::log('ADDWORD: "' . $addWord . '"');
-                for ($i = 0; $i < mb_strlen($addWord); $i++) {
-                    $addChar = mb_substr($addWord, $i, 1);
-                    $curHash = $this->hashAddChar($curHash, $addChar);
-//                    self::log('ADD CHAR: "' . $addChar . '"');
-                }
-                $curHash = gmp_strval($curHash);
+                $curHash       = $this->hashSubChar($prevSubstring, $curHash, $subChar);
+                $prevSubstring = mb_substr($prevSubstring, 1);
             }
+            $addWord = mb_substr($curSubstring, mb_strrpos($curSubstring, ' '));
+//                self::log('ADDWORD: "' . $addWord . '"');
+            for ($i = 0; $i < mb_strlen($addWord); $i++) {
+                $addChar = mb_substr($addWord, $i, 1);
+                $curHash = $this->hashAddChar($curHash, $addChar);
+//                    self::log('ADD CHAR: "' . $addChar . '"');
+            }
+            $curHash = gmp_strval($curHash);
+        }
         $this->prevHash = $curHash;
+
 //            self::log('for shingle "' . $shingle . '" hash is: ' . $curHash);
         return $curHash;
     }
@@ -120,17 +120,14 @@ class Hash_RK extends Hash
         } while ($curPrime > $maxP);
         $this->baseMod = gmp_strval($curPrime);
         self::log('DEBUG BASE MOD: ' . $this->baseMod);
-        self::log('DEBUG BASE MOD Hex: ' . base_convert($this->baseMod,10,16));
-
+        self::log('DEBUG BASE MOD Hex: ' . base_convert($this->baseMod, 10, 16));
     }
 
     public function initByCurrentPrime($curPrime)
     {
         $this->baseMod = $curPrime;
         self::log('DEBUG BASE MOD: ' . $this->baseMod);
-        self::log('DEBUG BASE MOD Hex: ' . base_convert($this->baseMod,10,16));
-
-
+        self::log('DEBUG BASE MOD Hex: ' . base_convert($this->baseMod, 10, 16));
     }
 
     public function hashSubChar($curString, $prevHash, $prevChar)
@@ -143,7 +140,6 @@ class Hash_RK extends Hash
 
         return $hash;
     }
-
 
     public function hashAddChar($hash, $newChar)
     {
@@ -161,6 +157,7 @@ class Hash_RK extends Hash
         $hash   = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
         $hash   = gmp_mod(gmp_add($hash, $newOrd), $this->baseMod);
         $hash   = gmp_strval($hash);
+
         return $hash;
     }
 
@@ -171,15 +168,15 @@ class Hash_RK extends Hash
         $positionMod = gmp_mod(pow(self::$numBase, $len - 1), $this->baseMod);
         $prevOrdSub  = gmp_mod(gmp_mul($prevOrd, $positionMod), $this->baseMod);
         $hash        = gmp_sub($prevHash, $prevOrdSub);
+
         return $hash;
     }
-
 
     public function circleByteHash($curString, $prevHash = null, $prevChar = null)
     {
         $len = mb_strlen($curString);
         if ($prevHash == null) {
-            $hash    = 0;
+            $hash = 0;
             for ($i = 0; $i < $len; $i++) {
                 $curChar = mb_substr($curString, $i, 1);
                 $hash    = $this->hashByteAddChar($hash, $curChar);
@@ -191,9 +188,9 @@ class Hash_RK extends Hash
         } else {
             throw new Exception ('No previous Char but Previous hash passed!');
         }
+
         return $hash;
     }
-
 
     public function circleHash($curString, $prevHash = null, $prevChar = null)
     {
@@ -226,28 +223,6 @@ class Hash_RK extends Hash
     }
 
     /**
-     * Turns an array of ordinal values into a string of unicode characters
-     *
-     * @param              $ordLists
-     * @param string       $encoding
-     *
-     * @return string
-     */
-    static function ords_to_unistr($ordLists, $encoding = 'UTF-8')
-    {
-        $str = '';
-        for ($i = 0; $i < sizeof($ordLists); $i++) {
-            // Pack this number into a 4-byte string
-            // (Or multiple one-byte strings, depending on context.)
-            $v = $ordLists[$i];
-            $str .= pack("N", $v);
-        }
-        $str = mb_convert_encoding($str, $encoding, "UCS-4BE");
-
-        return ($str);
-    }
-
-    /**
      * Turns a string of unicode characters into an array of ordinal values,
      * Even if some of those characters are multibyte.
      *
@@ -275,13 +250,11 @@ class Hash_RK extends Hash
 
     protected function charToOrd($char)
     {
-        if(!isset($this->abcCharToOrd[$char])) {
+        if (!isset($this->abcCharToOrd[$char])) {
             return count($this->abcCharToOrd) + 1;
         }
+
         return $this->abcCharToOrd[$char];
     }
-
-
-
 
 }
