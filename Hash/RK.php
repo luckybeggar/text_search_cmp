@@ -12,9 +12,13 @@ class Hash_RK extends Hash
      * 2 bytes for store one char
      * @var int
      */
-    public static $numBase = 0x10000;
+    public static $numBase = 0x100;
 
     protected $p, $baseMod;
+
+    protected static $abc = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ ';
+
+    protected $abcCharToOrd = array();
 
     /**
      * previous hash storing for speed up circle hash
@@ -49,6 +53,17 @@ class Hash_RK extends Hash
         if (!function_exists('gmp_strval')) {
             throw new Exception('GMP required. http://php.net/manual/en/gmp.installation.php');
         }
+        $this->abcCharToOrd = array_flip(preg_split('//u', self::$abc, null, PREG_SPLIT_NO_EMPTY));
+//        $word1 = 'МАМА';
+//        $hash1 = $this->circleByteHash($word1);
+//        self::log('DEBUG WORD1 :' . $word1);
+//        self::log('DEBUG WORD1 HASH:' . $hash1);
+//        $word2 = 'АМАМ';
+//        $hash2 = $this->circleByteHash($word2);
+//        self::log('DEBUG WORD2 :' . $word2);
+//        self::log('DEBUG WORD2 COLD HASH:' . $hash2);
+//        $hash22 = $this->circleByteHash($word2, $hash1, 'М');
+//        self::log('DEBUG WORD2 HOT HASH:' . $hash22);
     }
 
     public function getInsertSql($tableName)
@@ -105,12 +120,17 @@ class Hash_RK extends Hash
         } while ($curPrime > $maxP);
         $this->baseMod = gmp_strval($curPrime);
         self::log('DEBUG BASE MOD: ' . $this->baseMod);
+        self::log('DEBUG BASE MOD Hex: ' . base_convert($this->baseMod,10,16));
+
     }
 
     public function initByCurrentPrime($curPrime)
     {
         $this->baseMod = $curPrime;
         self::log('DEBUG BASE MOD: ' . $this->baseMod);
+        self::log('DEBUG BASE MOD Hex: ' . base_convert($this->baseMod,10,16));
+
+
     }
 
     public function hashSubChar($curString, $prevHash, $prevChar)
@@ -124,6 +144,7 @@ class Hash_RK extends Hash
         return $hash;
     }
 
+
     public function hashAddChar($hash, $newChar)
     {
         $newOrd = self::unistr_to_ords($newChar);
@@ -133,6 +154,46 @@ class Hash_RK extends Hash
 
         return $hash;
     }
+
+    public function hashByteAddChar($hash, $newChar)
+    {
+        $newOrd = $this->charToOrd($newChar);
+        $hash   = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
+        $hash   = gmp_mod(gmp_add($hash, $newOrd), $this->baseMod);
+        $hash   = gmp_strval($hash);
+        return $hash;
+    }
+
+    public function hashByteSubChar($curString, $prevHash, $prevChar)
+    {
+        $prevOrd     = $this->charToOrd($prevChar);
+        $len         = mb_strlen($curString);
+        $positionMod = gmp_mod(pow(self::$numBase, $len - 1), $this->baseMod);
+        $prevOrdSub  = gmp_mod(gmp_mul($prevOrd, $positionMod), $this->baseMod);
+        $hash        = gmp_sub($prevHash, $prevOrdSub);
+        return $hash;
+    }
+
+
+    public function circleByteHash($curString, $prevHash = null, $prevChar = null)
+    {
+        $len = mb_strlen($curString);
+        if ($prevHash == null) {
+            $hash    = 0;
+            for ($i = 0; $i < $len; $i++) {
+                $curChar = mb_substr($curString, $i, 1);
+                $hash    = $this->hashByteAddChar($hash, $curChar);
+            }
+        } elseif ($prevChar) {
+            $hash    = $this->hashByteSubChar($curString, $prevHash, $prevChar);
+            $newChar = mb_substr($curString, -1);
+            $hash    = $this->hashByteAddChar($hash, $newChar);
+        } else {
+            throw new Exception ('No previous Char but Previous hash passed!');
+        }
+        return $hash;
+    }
+
 
     public function circleHash($curString, $prevHash = null, $prevChar = null)
     {
@@ -211,5 +272,16 @@ class Hash_RK extends Hash
 
         return ($ords[0]);
     }
+
+    protected function charToOrd($char)
+    {
+        if(!isset($this->abcCharToOrd[$char])) {
+            return count($this->abcCharToOrd) + 1;
+        }
+        return $this->abcCharToOrd[$char];
+    }
+
+
+
 
 }
