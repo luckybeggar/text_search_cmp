@@ -34,7 +34,8 @@ class Shingles_NGramParser
     {
         $patternClearBadChars     = '/[^a-zA-Zа-яА-ЯёЁ0-9]/smu';
         $patternClearDoubleSpaces = '/\s+/smiu';
-        $clearText                = preg_replace($patternClearBadChars, ' ', $text);
+        $clearText                = strip_tags($text);
+        $clearText                = preg_replace($patternClearBadChars, ' ', $clearText);
         $clearText                = ' ' . $clearText . ' ';
         $clearText                = preg_replace($patternClearDoubleSpaces, ' ', $clearText);
         $clearText                = trim($clearText);
