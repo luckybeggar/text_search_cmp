@@ -13,8 +13,9 @@ class Hash_MurMur_v3 extends Hash
      *
      * @param array $config
      * @param PDO   $db
+     * @param Common_Logger $logger
      */
-    public function __construct($config, $db)
+    public function __construct($config, $db, $logger)
     {
         $db->exec($this->getHashDropSql());
         $db->exec($this->getHashInitSql());
@@ -95,7 +96,7 @@ DELIMITER ;';
         ' shingle_hash = murmur_hash_v3(:shingle_hash, 0)';
     }
 
-    public function getHash($curSubstring, $prevSubctring)
+    public function getHash($curSubstring, $prevSubstring)
     {
         return $curSubstring;
     }

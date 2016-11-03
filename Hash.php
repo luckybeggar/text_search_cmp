@@ -9,13 +9,28 @@
 abstract class Hash
 {
     /**
+     * @var Common_Logger
+     */
+    public static $logger;
+
+    /**
      * MurMur_v3 constructor.
      *
      * @param array $config
      * @param PDO   $db
      */
-    public function __construct($config, $db)
+    public function __construct($config, $db, $logger)
     {
+        if ($logger !== null) {
+            self::$logger = $logger;
+        }
+    }
+
+    public static function log($message)
+    {
+        if (self::$logger !== null) {
+            self::$logger->debug($message);
+        }
     }
 
     public function getCreateIndexTable($tableName)
@@ -41,7 +56,7 @@ abstract class Hash
         ' shingle_hash = :shingle_text';
     }
 
-    public function getHash($curSubstring, $prevSubctring)
+    public function getHash($curSubstring, $prevSubstring)
     {
         return $curSubstring;
     }

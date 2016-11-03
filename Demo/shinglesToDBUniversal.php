@@ -36,7 +36,7 @@ $logger->info('index: ' . $currentIndex);
 $logger->info('index config: ' . print_r($indexConfig, 1));
 $hashClassName = $indexConfig['storage_hash_class'];
 include($indexConfig['storage_hash_file']);
-$hasher = new $hashClassName($indexConfig, $db);
+$hasher = new $hashClassName($indexConfig, $db, $logger);
 /**
  * @var Hash $hasher
  */

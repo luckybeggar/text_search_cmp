@@ -132,7 +132,7 @@ class Shingles_CarpRabin
         return $hash;
     }
 
-    public $haystack, $n, $m, $p, $baseMod;
+    public $p, $baseMod;
 
     public function initSearch($needleLength, $haystackLength)
     {
