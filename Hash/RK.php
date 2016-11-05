@@ -43,6 +43,9 @@ class Hash_RK extends Hash
             case 'ready_prime':
                 self::initByCurrentPrime($config['hash_prime']);
                 break;
+            case 'number_of_bytes':
+                self::initByNumberOfBytes($config['hash_bytes']);
+                break;
             default:
             case 'calculate':
                 self::initSearch($config['hash_n_len'], $config['hash_m_len']);
@@ -95,6 +98,25 @@ class Hash_RK extends Hash
 
 //            self::log('for shingle "' . $shingle . '" hash is: ' . $curHash);
         return $curHash;
+    }
+
+    public function initByNumberOfBytes($nofBytes)
+    {
+        self::log('DEBUG Nof bytes: ' . $nofBytes);
+        $maxP = gmp_strval(gmp_pow(2, $nofBytes * 8));
+        self::log('DEBUG p: ' . $maxP);
+        self::log('DEBUG p HEX: ' . base_convert($maxP, 10,16));
+        $curStart = $maxP;
+        do {
+            $randomSub = rand(gmp_strval(gmp_div($maxP, 32)), gmp_strval(gmp_div($maxP, 16)));
+            $curStart  = gmp_strval(gmp_sub($curStart, $randomSub));
+            $curPrime  = gmp_strval(gmp_nextprime($curStart));
+            self::log('DEBUG CUR START: ' . $curStart);
+            self::log('DEBUG CUR PRIME: ' . $curPrime);
+        } while ($curPrime > $maxP);
+        $this->baseMod = gmp_strval($curPrime);
+        self::log('DEBUG BASE MOD: ' . $this->baseMod);
+        self::log('DEBUG BASE MOD Hex: ' . base_convert($this->baseMod, 10, 16));
     }
 
     public function initSearch($needleLength, $haystackLength)
