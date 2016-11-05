@@ -93,7 +93,7 @@ DELIMITER ;';
     {
         return 'INSERT IGNORE INTO ' . $tableName .
         ' SET text_id = :text_id, shingle_text = :shingle_text,' .
-        ' shingle_hash = murmur_hash_v3(:shingle_hash, 0)';
+        ' shingle_hash = murmur_hash_v3(:shingle_hash, 0), shingle_length = :shingle_length';
     }
 
     public function getHash($curSubstring, $prevSubstring)

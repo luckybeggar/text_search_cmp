@@ -23,7 +23,7 @@ class Hash_CRC32 extends Hash
     {
         return 'INSERT IGNORE INTO ' . $tableName .
         ' SET text_id = :text_id, shingle_text = :shingle_text,' .
-        ' shingle_hash = CRC32(:shingle_hash)';
+        ' shingle_hash = CRC32(:shingle_hash), shingle_length = :shingle_length';
     }
 
     public function getHash($curSubstring, $prevSubstring)
