@@ -53,11 +53,16 @@ $sqlGetText = "SELECT {$sourceConfig['input_text_id_field']} as id, {$sourceConf
  ORDER BY {$sourceConfig['input_text_id_field']} ASC
  LIMIT {$stepSize}";
 
-$sqlSaveShingle      = $hasher->getInsertSql($indexConfig['storage_db']);
-$sqlDropIndexTable   = $hasher->getDropIndexTable($indexConfig['storage_db']);
-$sqlCreateIndexTable = $hasher->getCreateIndexTable($indexConfig['storage_db']);
+$sqlSaveShingle        = $hasher->getInsertSql($indexConfig['index_table']);
+$sqlCountShingle       = $hasher->getCounterInsertSql($indexConfig['counter_table']);
+$sqlDropIndexTable     = $hasher->getDropIndexTable($indexConfig['index_table']);
+$sqlCreateIndexTable   = $hasher->getCreateIndexTable($indexConfig['index_table']);
+$sqlDropCounterTable   = $hasher->getDropCounterTable($indexConfig['counter_table']);
+$sqlCreateCounterTable = $hasher->getCreateCounterTable($indexConfig['counter_table']);
 $db->exec($sqlDropIndexTable);
+$db->exec($sqlDropCounterTable);
 $db->exec($sqlCreateIndexTable);
+$db->exec($sqlCreateCounterTable);
 
 $idFrom = 0;
 do {
@@ -80,10 +85,15 @@ do {
         $textNum++;
         $prevShingle = null;
         foreach ($shingleList as $shingle) {
-            $saver = $db->prepare($sqlSaveShingle);
+            $curHash = $hasher->getHash($shingle, $prevShingle);
+            $saver   = $db->prepare($sqlSaveShingle);
             $saver->bindParam('text_id', $textMeta['id']);
             $saver->bindParam('shingle_text', $shingle);
-            $saver->bindParam('shingle_hash', $hasher->getHash($shingle, $prevShingle));
+            $saver->bindParam('shingle_hash', $curHash);
+            $saver->bindParam('shingle_length', mb_strlen($shingle));
+            $saver->execute();
+            $saver = $db->prepare($sqlCountShingle);
+            $saver->bindParam('shingle_hash', $curHash);
             $saver->execute();
             $prevShingle = $shingle;
         }

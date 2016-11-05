@@ -65,13 +65,6 @@ class Hash_RK extends Hash
 //        self::log('DEBUG WORD2 HOT HASH:' . $hash22);
     }
 
-    public function getInsertSql($tableName)
-    {
-        return 'INSERT IGNORE INTO ' . $tableName .
-        ' SET text_id = :text_id, shingle_text = :shingle_text,' .
-        ' shingle_hash = :shingle_hash';
-    }
-
     public function getHash($curSubstring, $prevSubstring)
     {
         if ($prevSubstring == null) {
