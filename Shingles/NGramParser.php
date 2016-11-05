@@ -51,10 +51,10 @@ class Shingles_NGramParser
         do {
             $currentNgramWords = array_slice($wordList, $offset, $this->n);
             $currentNgram      = implode(' ', $currentNgramWords);
-            $ngramList[]       = $currentNgram;
+            $ngramList[$currentNgram]       = $currentNgram;
             $offset++;
         } while ($offset < (count($wordList) - $this->n));
-
+        $ngramList = array_values($ngramList);
         return $ngramList;
     }
 }
