@@ -16,8 +16,9 @@ abstract class Hash
     /**
      * MurMur_v3 constructor.
      *
-     * @param array $config
-     * @param PDO   $db
+     * @param array              $config
+     * @param PDO|null           $db
+     * @param Common_Logger|null $logger
      */
     public function __construct($config, $db, $logger)
     {
