@@ -67,6 +67,10 @@ for ($curHash = dba_firstkey($dbaHashCount); $curHash != false; $curHash = dba_n
         $logger->info('cur hash ' . $curHash . ' site ids: ' . $textIdListLine);
         foreach ($textIdList as $curTextId)
         {
+            if (dba_exists($curTextId, $dbaNonUniqueText))
+            {
+                continue;
+            }
             $curTextMetaLine = dba_fetch($curTextId, $dbaTextToHash);
             $curTextMeta = json_decode($curTextMetaLine, true);
             //$logger->info('cur text ' . $curTextId . ' meta: ' . print_r($curTextMeta,1));
@@ -96,7 +100,6 @@ for ($curHash = dba_firstkey($dbaHashCount); $curHash != false; $curHash = dba_n
                 $candidateHashList[$candidateTextId] = $curCandidateTextHashList;
             }
 //            $logger->info('List of candidates hashes:'. print_r($candidateHashList,1));
-
             $curMaxSimilarity = 0;
             $curMaxSimilarityTextId = 0;
             $curMaxOuterInclusivity = 0;
@@ -134,12 +137,9 @@ for ($curHash = dba_firstkey($dbaHashCount); $curHash != false; $curHash = dba_n
                 'out_inner_id' => $curMaxOuterInclusivityTextId,
             );
             $logger->info('text similarity params: '. print_r($curTextSimMeta,1));
+            dba_insert($curTextId, json_encode($curTextSimMeta), $dbaNonUniqueText);
+            $step++;
+            $logger->info('STEP: '. $step);
         }
-
     }
-//    $step++;
-//    if($step > 100)
-//    {
-//        break;
-//    }
 }
