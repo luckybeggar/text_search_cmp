@@ -58,85 +58,88 @@ if ($dbaTextToHash === false) {
     throw new Exception('cant open non unique dba');
 }
 
-
+$step = 0;
 for ($curHash = dba_firstkey($dbaHashCount); $curHash != false; $curHash = dba_nextkey($dbaHashCount)) {
     $curCount = dba_fetch($curHash, $dbaHashCount);
     if ($curCount > 1) {
         $textIdListLine = dba_fetch($curHash, $dbaHashToText);
         $textIdList = explode(',', $textIdListLine);
+        $logger->info('cur hash ' . $curHash . ' site ids: ' . $textIdListLine);
         foreach ($textIdList as $curTextId)
         {
-            $curTextMataLine = dba_fetch($curTextId, $dbaTextToHash);
-            $curTextMeta = json_decode($curTextMataLine, true);
-            $logger->info('cur text ' . $curTextId . ' meta: ' . print_r($curTextMeta,1));
+            $curTextMetaLine = dba_fetch($curTextId, $dbaTextToHash);
+            $curTextMeta = json_decode($curTextMetaLine, true);
+            //$logger->info('cur text ' . $curTextId . ' meta: ' . print_r($curTextMeta,1));
             $curTextHashList = array_column($curTextMeta, 'shingle_hash');
-            $logger->info('cur text hash list: ' . print_r($curTextHashList,1));
-        }
-        $logger->info('cur hash ' . $curHash . ' site ids: ' . $textIdListLine);
-        die();
-    }
+            //$logger->info('cur text hash list: ' . print_r($curTextHashList,1));
+            $candidateTextIdList = array();
+            foreach ($curTextHashList as $tHash) {
+                $tTextIdListLine = dba_fetch($curHash, $dbaHashToText);
+                if(strpos($tTextIdListLine, ',') == false)
+                {
+                    continue;
+                }
+                $tTextIdList = explode(',', $tTextIdListLine);
+                foreach ($tTextIdList as $tTextId)
+                {
+                    $candidateTextIdList[$tTextId] = $tTextId;
+                }
+            }
+            unset($candidateTextIdList[$curTextId]);
+            $logger->info('List of candidates for text #' . $curTextId . ': '. implode(',', $candidateTextIdList));
+            $candidateHashList = array();
+            foreach ($candidateTextIdList as $candidateTextId)
+            {
+                $curCandidateTextMetaLine = dba_fetch($candidateTextId, $dbaTextToHash);
+                $curCandidateTextMeta = json_decode($curCandidateTextMetaLine, true);
+                $curCandidateTextHashList = array_column($curCandidateTextMeta, 'shingle_hash');
+                $candidateHashList[$candidateTextId] = $curCandidateTextHashList;
+            }
+//            $logger->info('List of candidates hashes:'. print_r($candidateHashList,1));
 
-}
-die();
-
-$sqlGetText = "SELECT {$sourceConfig['input_text_id_field']} as id, {$sourceConfig['input_text_id_field']}, {$sourceConfig['input_text_field']} 
- FROM {$sourceConfig['input_text_db']} 
- WHERE 
- {$sourceConfig['input_text_id_field']} > :id_from 
- ORDER BY {$sourceConfig['input_text_id_field']} ASC
- LIMIT {$stepSize}";
-
-$sqlSaveShingle  = $hasher->getInsertSql($indexConfig['index_table']);
-$sqlCountShingle = $hasher->getCounterInsertSql($indexConfig['counter_table']);
-
-$idFrom = 0;
-do {
-    $logger->info('STEP ID : ' . $idFrom . ' OF ' . $limits->max_id);
-    $textListRequest = $db->prepare($sqlGetText);
-    $textListRequest->bindParam('id_from', $idFrom);
-    $textListRequest->execute();
-    $textList = $textListRequest->fetchAll(PDO::FETCH_ASSOC | PDO::FETCH_GROUP);
-    if (!empty($textList)) {
-        $textList = array_map('reset', $textList);
-    }
-
-    $textNum = 1;
-    $db->beginTransaction();
-
-    foreach ($textList as $textId => $textMeta) {
-        $idFrom      = $textId;
-        $shingleList = $parser->parseText($textMeta['article_text']);
-        $logger->info('TEXT: ' . $textNum);
-        $textNum++;
-        $prevShingle = null;
-        $shingleMeta = array();
-        foreach ($shingleList as $shingle) {
-            $curHash       = $hasher->getHash($shingle, $prevShingle);
-            $shingleMeta[] = array(
-//                'text_id'      => $textMeta['id'],
-'shingle_text'   => $shingle,
-'shingle_hash'   => $curHash,
-'shingle_length' => mb_strlen($shingle)
+            $curMaxSimilarity = 0;
+            $curMaxSimilarityTextId = 0;
+            $curMaxOuterInclusivity = 0;
+            $curMaxOuterInclusivityTextId = 0;
+            $curMaxInnerInclusivity = 0;
+            $curMaxInnerInclusivityTextId = 0;
+            foreach ($candidateHashList as $curCandidateTextId => $curCandidateHashList)
+            {
+                $commonHashList = array_intersect($curCandidateHashList, $curTextHashList);
+                $curSimilarity = (count($commonHashList) * 2)/(count($curCandidateHashList + $curTextHashList));
+                $curOuterInclusivity = count($commonHashList)/count($curCandidateHashList);
+                $curInnerInclusivity = count($commonHashList)/count($curTextHashList);
+                if($curSimilarity > $curMaxSimilarity)
+                {
+                    $curMaxSimilarity = $curSimilarity;
+                    $curMaxSimilarityTextId = $curCandidateTextId;
+                }
+                if($curOuterInclusivity > $curMaxOuterInclusivity)
+                {
+                    $curMaxOuterInclusivity = $curOuterInclusivity;
+                    $curMaxOuterInclusivityTextId = $curCandidateTextId;
+                }
+                if($curInnerInclusivity > $curMaxInnerInclusivity)
+                {
+                    $curMaxInnerInclusivity = $curInnerInclusivity;
+                    $curMaxInnerInclusivityTextId = $curCandidateTextId;
+                }
+            }
+            $curTextSimMeta = array(
+                'sim' => round($curMaxSimilarity, 4),
+                'sim_id' => $curMaxSimilarityTextId,
+                'inc_inner' => round($curMaxInnerInclusivity, 4),
+                'inc_inner_id' => $curMaxInnerInclusivityTextId,
+                'out_inner' => round($curMaxOuterInclusivity, 4),
+                'out_inner_id' => $curMaxOuterInclusivityTextId,
             );
-//            $shingleMeta[] = $curHash . '|' . $shingle . '|' . mb_strlen($shingle);
-
-            if (dba_exists($curHash, $dbaHashToText)) {
-                $textIdListLine = dba_fetch($curHash, $dbaHashToText);
-                $textIdListLine .= ',' . $textMeta['id'];
-                dba_replace($curHash, $textIdListLine, $dbaHashToText);
-            } else {
-                dba_insert($curHash, $textMeta['id'], $dbaHashToText);
-            }
-            if (dba_exists($curHash, $dbaHashCount)) {
-                $counter = dba_fetch($curHash, $dbaHashCount);
-                $counter += 1;
-                dba_replace($curHash, $counter, $dbaHashCount);
-            } else {
-                dba_insert($curHash, 1, $dbaHashCount);
-            }
-            $prevShingle = $shingle;
+            $logger->info('text similarity params: '. print_r($curTextSimMeta,1));
         }
-        dba_insert((int)$textMeta['id'], json_encode($shingleMeta), $dbaTextToHash);
+
     }
-    $db->commit();
-} while (count($textList) > 0);
+//    $step++;
+//    if($step > 100)
+//    {
+//        break;
+//    }
+}
