@@ -98,6 +98,23 @@ foreach ($textList as $textId => $textSimMeta)
     $textRequest->bindParam('id_text_dup', $textSimMeta['sim_id']);
     $textRequest->execute();
     $curTextMeta = $textRequest->fetchAll(PDO::FETCH_ASSOC);
-    $logger->info('CUR TEXT META: '. print_r($curTextMeta, 1));
+//    $logger->info('CUR TEXT META: '. print_r($curTextMeta, 1));
     $logger->info('CUR TEXT SIMILARITY: '. print_r($textSimMeta['sim'], 1));
+    require_once 'lib/Diff.php';
+    $a = explode("\n", $curTextMeta[0]['article_text']);
+    $b = explode("\n", $curTextMeta[1]['article_text']);
+
+
+    $options = array(
+        //'ignoreWhitespace' => true,
+        //'ignoreCase' => true,
+    );
+    $diff = new Diff($a, $b, $options);
+    require_once 'lib/Diff/Renderer/Text/Unified.php';
+    $renderer = new Diff_Renderer_Text_Unified;
+    $logger->info("\n" . $diff->render($renderer));
+
+
+
+
 }
