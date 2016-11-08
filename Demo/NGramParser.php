@@ -5,12 +5,12 @@
  * Date: 26.10.16
  * Time: 19:08
  */
-require_once ('../Shingles/NGramParser.php');
+require_once('../TSC/NGramParser.php');
 require_once ('../Common/Logger.php');
 mb_internal_encoding('UTF-8');
 
 $logger = new Common_Logger(8);
-$parser = new Shingles_NGramParser(5, $logger);
+$parser = new TSC_NGramParser(5, $logger);
 $text = <<<TEXT
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
 sed do eiusmod tempor incididunt ut labore et dolore 

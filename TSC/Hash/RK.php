@@ -6,7 +6,7 @@
  * Date: 03.11.16
  * Time: 17:06
  */
-class Hash_RK extends Hash
+class TSC_Hash_RK extends TSC_Hash
 {
     /**
      * 2 bytes for store one char

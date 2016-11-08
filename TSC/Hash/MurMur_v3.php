@@ -6,7 +6,7 @@
  * Date: 03.11.16
  * Time: 15:09
  */
-class Hash_MurMur_v3 extends Hash
+class TSC_Hash_MurMur_v3 extends TSC_Hash
 {
     /**
      * MurMur_v3 constructor.

@@ -6,7 +6,7 @@
  * Date: 26.10.16
  * Time: 18:50
  */
-class Shingles_NGramParser
+class TSC_NGramParser
 {
     protected $n;
 

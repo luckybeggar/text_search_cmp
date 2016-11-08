@@ -7,9 +7,9 @@
  */
 $projectPath = realpath(dirname(__FILE__) . '/..');
 set_include_path(get_include_path() . PATH_SEPARATOR . $projectPath);
-require_once('Shingles/NGramParser.php');
+require_once('TSC/NGramParser.php');
 require_once('Common/Logger.php');
-require_once('Hash.php');
+require_once('TSC/Hash.php');
 
 
 $config = parse_ini_file('config.ini', 1);
@@ -17,7 +17,7 @@ mb_internal_encoding($config['common']['encoding']);
 setlocale(LC_ALL, $config['common']['locale']);
 
 $logger = new Common_Logger(8);
-$parser = new Shingles_NGramParser(5, $logger);
+$parser = new TSC_NGramParser(5, $logger);
 
 $logger->info('db config: ' . print_r($config['db'], 1));
 $db            = new PDO(
@@ -38,7 +38,7 @@ $hashClassName = $indexConfig['storage_hash_class'];
 include($indexConfig['storage_hash_file']);
 $hasher = new $hashClassName($indexConfig, $db, $logger);
 /**
- * @var Hash $hasher
+ * @var TSC_Hash $hasher
  */
 $sqlCount = "SELECT max({$sourceConfig['input_text_id_field']}) as max_id FROM {$sourceConfig['input_text_db']}";
 $limits   = $db->query($sqlCount, PDO::FETCH_OBJ)->fetchObject();

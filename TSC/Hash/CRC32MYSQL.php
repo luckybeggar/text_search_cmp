@@ -5,7 +5,7 @@
  * Date: 03.11.16
  * Time: 17:06
  */
-class Hash_CRC32 extends Hash
+class TSC_Hash_CRC32MYSQL extends TSC_Hash
 {
     /**
      * Hash_CRC32 constructor.

@@ -6,7 +6,7 @@
  * Date: 03.11.16
  * Time: 15:09
  */
-abstract class Hash
+abstract class TSC_Hash
 {
     /**
      * @var Common_Logger

@@ -7,16 +7,16 @@
  */
 $projectPath = realpath(dirname(__FILE__) . '/..');
 set_include_path(get_include_path() . PATH_SEPARATOR . $projectPath);
-require_once('Shingles/NGramParser.php');
+require_once('TSC/NGramParser.php');
 require_once('Common/Logger.php');
-require_once('Hash.php');
+require_once('TSC/Hash.php');
 
 $config = parse_ini_file('config.ini', 1);
 mb_internal_encoding($config['common']['encoding']);
 setlocale(LC_ALL, $config['common']['locale']);
 
 $logger = new Common_Logger(8);
-$parser = new Shingles_NGramParser(5, $logger);
+$parser = new TSC_NGramParser(5, $logger);
 
 $logger->info('db config: ' . print_r($config['db'], 1));
 $db            = new PDO(
@@ -37,7 +37,7 @@ $hashClassName = $indexConfig['storage_hash_class'];
 include($indexConfig['storage_hash_file']);
 $hasher = new $hashClassName($indexConfig, $db, $logger);
 /**
- * @var Hash $hasher
+ * @var TSC_Hash $hasher
  */
 $dbaTextToHash = dba_open($projectPath . '/' . $indexConfig['dba_hash_to_text'], 'n', $indexConfig['dba_engine']);
 $dbaHashToText = dba_open($projectPath . '/' . $indexConfig['dba_text_to_hash'], 'n', $indexConfig['dba_engine']);
@@ -66,9 +66,6 @@ $sqlGetText = "SELECT {$sourceConfig['input_text_id_field']} as id, {$sourceConf
  ORDER BY {$sourceConfig['input_text_id_field']} ASC
  LIMIT {$stepSize}";
 
-$sqlSaveShingle  = $hasher->getInsertSql($indexConfig['index_table']);
-$sqlCountShingle = $hasher->getCounterInsertSql($indexConfig['counter_table']);
-
 $idFrom = 0;
 do {
     $logger->info('STEP ID : ' . $idFrom . ' OF ' . $limits->max_id);
@@ -93,12 +90,10 @@ do {
         foreach ($shingleList as $shingle) {
             $curHash       = $hasher->getHash($shingle, $prevShingle);
             $shingleMeta[] = array(
-//                'text_id'      => $textMeta['id'],
                 'shingle_text'   => $shingle,
                 'shingle_hash'   => $curHash,
                 'shingle_length' => mb_strlen($shingle)
             );
-//            $shingleMeta[] = $curHash . '|' . $shingle . '|' . mb_strlen($shingle);
 
             if (dba_exists($curHash, $dbaHashToText)) {
                 $textIdListLine = dba_fetch($curHash, $dbaHashToText);

@@ -27,7 +27,7 @@ class Common_Logger
 
     public function __construct($priority)
     {
-        $this->startTime = mktime(true);
+        $this->startTime = time();
         $this->priority = $priority;
         foreach ($this->getOutput() as $source) {
             $this->loggerPointers[] = fopen($source, 'w');
@@ -47,7 +47,7 @@ class Common_Logger
         $formatedMessage = $this->format;
         $vars['time']    = date('Y-m-d H:i:s');
         $vars['message'] = $message;
-        $vars['ptime']   = bcsub(mktime(true) , $this->startTime);
+        $vars['ptime']   = bcsub(time() , $this->startTime);
 
         foreach ($vars as $varName => $varVal) {
             $formatedMessage = str_replace('{' . $varName . '}', $varVal, $formatedMessage);
