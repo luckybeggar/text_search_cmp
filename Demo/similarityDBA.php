@@ -109,7 +109,7 @@ for ($curHash = dba_firstkey($dbaHashCount); $curHash != false; $curHash = dba_n
             foreach ($candidateHashList as $curCandidateTextId => $curCandidateHashList)
             {
                 $commonHashList = array_intersect($curCandidateHashList, $curTextHashList);
-                $curSimilarity = (count($commonHashList) * 2)/(count($curCandidateHashList + $curTextHashList));
+                $curSimilarity = (count($commonHashList) * 2)/(count($curCandidateHashList) + count($curTextHashList));
                 $curOuterInclusivity = count($commonHashList)/count($curCandidateHashList);
                 $curInnerInclusivity = count($commonHashList)/count($curTextHashList);
                 if($curSimilarity > $curMaxSimilarity)
