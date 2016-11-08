@@ -20,25 +20,50 @@ class Common_Logger
 
     protected $loggerPointers = array();
 
-    protected function getOutput()
-    {
-        return array('php://stdout');
-    }
+    protected $loggerSources = array();
 
     public function __construct($priority)
     {
         $this->startTime = time();
-        $this->priority = $priority;
-        foreach ($this->getOutput() as $source) {
-            $this->loggerPointers[] = fopen($source, 'w');
-        }
+        $this->priority  = $priority;
+        $this->linkAllOutput();
     }
 
     public function __destruct()
     {
-        foreach ($this->loggerPointers as $source) {
-            fclose($source);
+        $this->unlinkAllOutput();
+    }
+
+    protected function linkAllOutput()
+    {
+        foreach ($this->getOutput() as $source) {
+            $openRes = fopen($source, 'w');
+            $this->loggerPointers[] = $openRes;
         }
+    }
+
+    protected function unlinkAllOutput()
+    {
+        foreach ($this->loggerPointers as $sourceId => $source) {
+            fclose($source);
+            unset($this->loggerPointers[$sourceId]);
+        }
+    }
+
+    protected function getOutput()
+    {
+        if (empty($this->loggerSources)) {
+            return array('php://stdout');
+        } else {
+            return $this->loggerSources;
+        }
+    }
+
+    public function registerOutput($filePath)
+    {
+        $this->loggerSources[] = $filePath;
+        $this->unlinkAllOutput();
+        $this->linkAllOutput();
     }
 
     protected function getFormatedMessage($message)
@@ -47,7 +72,7 @@ class Common_Logger
         $formatedMessage = $this->format;
         $vars['time']    = date('Y-m-d H:i:s');
         $vars['message'] = $message;
-        $vars['ptime']   = bcsub(time() , $this->startTime);
+        $vars['ptime']   = bcsub(time(), $this->startTime);
 
         foreach ($vars as $varName => $varVal) {
             $formatedMessage = str_replace('{' . $varName . '}', $varVal, $formatedMessage);
