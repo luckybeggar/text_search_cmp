@@ -47,7 +47,7 @@ class Common_Logger
         $formatedMessage = $this->format;
         $vars['time']    = date('Y-m-d H:i:s');
         $vars['message'] = $message;
-        $vars['ptime']   = mktime(true) - $this->startTime;
+        $vars['ptime']   = bcsub(mktime(true) , $this->startTime);
 
         foreach ($vars as $varName => $varVal) {
             $formatedMessage = str_replace('{' . $varName . '}', $varVal, $formatedMessage);
