@@ -101,13 +101,17 @@ foreach ($textList as $textId => $textSimMeta)
 //    $logger->info('CUR TEXT META: '. print_r($curTextMeta, 1));
     $logger->info('CUR TEXT SIMILARITY: '. print_r($textSimMeta['sim'], 1));
     require_once 'lib/Diff.php';
+    $curTextMeta[0]['article_text'] = strip_tags($curTextMeta[0]['article_text']);
+    $curTextMeta[1]['article_text'] = strip_tags($curTextMeta[1]['article_text']);
+    $curTextMeta[0]['article_text'] = str_replace(". ", ".\n", $curTextMeta[0]['article_text']);
+    $curTextMeta[1]['article_text'] = str_replace(". ", ".\n", $curTextMeta[1]['article_text']);
     $a = explode("\n", $curTextMeta[0]['article_text']);
     $b = explode("\n", $curTextMeta[1]['article_text']);
 
 
     $options = array(
-        //'ignoreWhitespace' => true,
-        //'ignoreCase' => true,
+        'ignoreWhitespace' => true,
+        'ignoreCase' => true,
     );
     $diff = new Diff($a, $b, $options);
     require_once 'lib/Diff/Renderer/Text/Unified.php';
