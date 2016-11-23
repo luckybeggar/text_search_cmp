@@ -6,10 +6,10 @@
  * Date: 03.11.16
  * Time: 15:09
  */
-class TSC_Hash_MurMur_v3 extends TSC_Hash
+class TSC_Hash_MurMur3MYSQL extends TSC_Hash
 {
     /**
-     * MurMur_v3 constructor.
+     * MurMur3MYSQL constructor.
      *
      * @param array $config
      * @param PDO   $db
