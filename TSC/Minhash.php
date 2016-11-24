@@ -82,7 +82,7 @@ class TSC_Minhash
             for ($funcId = 1; $funcId<=$this->nofFunctions; $funcId++)
             {
                 $curFuncHashValue = $this->getValue($funcId, $curHash);
-                self::log('FOR FUNCTION ' . $funcId. ' VALUE IS: ' . $curFuncHashValue);
+//                self::log('FOR FUNCTION ' . $funcId. ' VALUE IS: ' . $curFuncHashValue);
                 if(!isset($minhashList[$funcId]) || $minhashList[$funcId]>$curFuncHashValue)
                 {
                     $minhashList[$funcId] = $curFuncHashValue;
