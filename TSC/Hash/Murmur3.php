@@ -31,7 +31,8 @@ class TSC_Hash_Murmur3 extends TSC_Hash
 
     public function getHash($curSubstring, $prevSubstring)
     {
-        return sprintf('%u', self::murmurhash3_int($curSubstring));
+        $curSubstring = iconv('utf8', 'cp1251', $curSubstring);
+        return self::murmurhash3_int($curSubstring);
     }
 
     public static function murmurhash3_int($key, $seed = 0)
