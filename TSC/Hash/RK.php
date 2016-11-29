@@ -71,7 +71,7 @@ class TSC_Hash_RK extends TSC_Hash
     public function getHash($curSubstring, $prevSubstring)
     {
         if ($prevSubstring == null) {
-            $curHash = $this->circleHash($curSubstring);
+            $curHash = $this->circleByteHash($curSubstring);
         } else {
 //                self::log('DEBUG PREV SUBSTR: "' . $prevSubstring . '"');
 
@@ -82,14 +82,14 @@ class TSC_Hash_RK extends TSC_Hash
                 $subChar = mb_substr($subWord, $i, 1);
 //                    self::log('PS: "' . $prevSubstring . '"');
 //                    self::log('SUB CHAR: "' . $subChar . '"');
-                $curHash       = $this->hashSubChar($prevSubstring, $curHash, $subChar);
+                $curHash       = $this->hashByteSubChar($prevSubstring, $curHash, $subChar);
                 $prevSubstring = mb_substr($prevSubstring, 1);
             }
             $addWord = mb_substr($curSubstring, mb_strrpos($curSubstring, ' '));
 //                self::log('ADDWORD: "' . $addWord . '"');
             for ($i = 0; $i < mb_strlen($addWord); $i++) {
                 $addChar = mb_substr($addWord, $i, 1);
-                $curHash = $this->hashAddChar($curHash, $addChar);
+                $curHash = $this->hashByteAddChar($curHash, $addChar);
 //                    self::log('ADD CHAR: "' . $addChar . '"');
             }
             $curHash = gmp_strval($curHash);
@@ -145,16 +145,6 @@ class TSC_Hash_RK extends TSC_Hash
         self::log('DEBUG BASE MOD Hex: ' . base_convert($this->baseMod, 10, 16));
     }
 
-    public function hashSubChar($curString, $prevHash, $prevChar)
-    {
-        $prevOrd     = self::unistr_to_ords($prevChar);
-        $len         = mb_strlen($curString);
-        $positionMod = gmp_mod(gmp_pow(self::$numBase, $len - 1), $this->baseMod);
-        $prevOrdSub  = gmp_mod(gmp_mul($prevOrd, $positionMod), $this->baseMod);
-        $hash        = gmp_sub($prevHash, $prevOrdSub);
-
-        return $hash;
-    }
 
     public function hashAddChar($hash, $newChar)
     {
@@ -176,11 +166,23 @@ class TSC_Hash_RK extends TSC_Hash
         return $hash;
     }
 
+
+    public function hashSubChar($curString, $prevHash, $prevChar)
+    {
+        $prevOrd     = self::unistr_to_ords($prevChar);
+        $len         = mb_strlen($curString);
+        $positionMod = gmp_mod(gmp_pow(self::$numBase, $len - 1), $this->baseMod);
+        $prevOrdSub  = gmp_mod(gmp_mul($prevOrd, $positionMod), $this->baseMod);
+        $hash        = gmp_sub($prevHash, $prevOrdSub);
+
+        return $hash;
+    }
+
     public function hashByteSubChar($curString, $prevHash, $prevChar)
     {
         $prevOrd     = $this->charToOrd($prevChar);
         $len         = mb_strlen($curString);
-        $positionMod = gmp_mod(pow(self::$numBase, $len - 1), $this->baseMod);
+        $positionMod = gmp_mod(gmp_pow(self::$numBase, $len - 1), $this->baseMod);
         $prevOrdSub  = gmp_mod(gmp_mul($prevOrd, $positionMod), $this->baseMod);
         $hash        = gmp_sub($prevHash, $prevOrdSub);
 
