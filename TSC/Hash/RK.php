@@ -70,7 +70,7 @@ class TSC_Hash_RK extends TSC_Hash
 
     public function getHash($curSubstring, $prevSubstring)
     {
-        if ($prevSubstring == null) {
+        if ($prevSubstring == null or 1) {
             $curHash = $this->circleByteHash($curSubstring);
         } else {
 //                self::log('DEBUG PREV SUBSTR: "' . $prevSubstring . '"');
