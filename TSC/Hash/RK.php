@@ -162,6 +162,7 @@ class TSC_Hash_RK extends TSC_Hash
     {
         $newOrd = $this->charToOrd($newChar);
         $hash   = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
+        $hash   = gmp_strval($hash);
         if(substr($hash, 0,1) == '-')
         {
             self::$logger->info('WRNING! hash with minus (' . $hash .') for subtring: ' . $this->curSubstring);
