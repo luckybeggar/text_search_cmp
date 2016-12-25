@@ -185,6 +185,7 @@ class TSC_Hash_RK extends TSC_Hash
         $positionMod = gmp_mod(gmp_pow(self::$numBase, $len - 1), $this->baseMod);
         $prevOrdSub  = gmp_mod(gmp_mul($prevOrd, $positionMod), $this->baseMod);
         $hash        = gmp_sub($prevHash, $prevOrdSub);
+        $hash        = gmp_strval($hash);
 
         return $hash;
     }
