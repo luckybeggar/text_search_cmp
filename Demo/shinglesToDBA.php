@@ -81,6 +81,9 @@ do {
     $textList = $textListRequest->fetchAll(PDO::FETCH_ASSOC | PDO::FETCH_GROUP);
     if (!empty($textList)) {
         $textList = array_map('reset', $textList);
+    } else {
+        $logger->info('NO TEXT FOUND HERE');
+        continue;
     }
 
     $textNum = 1;
@@ -119,3 +122,5 @@ do {
         dba_insert((int)$textMeta['id'], json_encode($shingleMeta), $dbaTextToHash);
     }
 } while (count($textList) > 0);
+
+$logger->info('SUCCESSFULLy FINISHED');
