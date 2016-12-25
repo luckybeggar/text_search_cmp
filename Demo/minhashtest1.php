@@ -23,7 +23,7 @@ $minhashConfig = array(
 );
 $hasher        = new TSC_Hash_CRC64(array(), new ArrayObject(), $logger);
 $minhash       = new TSC_Minhash($minhashConfig, $hasher, $logger);
-$megashingles  = new TSC_Megashingles(array('supershingle_size' => 14, 'hash_byte_size' => 8), $logger);
+$megashingles  = new TSC_Megashingles(array('supershingle_size' => 14, 'hash_byte_size' => 8), $hasher, $logger);
 $parser        = new TSC_NGramParser(5, $logger);
 
 $testText = 'Правило альтернанса вызывает дольник. Субъективное восприятие, несмотря на то, что все эти характерологические черты отсылают не к единому образу нарратора, нивелирует мифологический ритмический рисунок. Субъективное восприятие последовательно. Впечатление отталкивает символ.'.

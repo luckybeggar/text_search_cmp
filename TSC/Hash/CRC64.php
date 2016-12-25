@@ -17,7 +17,7 @@ class TSC_Hash_CRC64 extends TSC_Hash
         parent::__construct($config, $db, $logger);
     }
 
-    public function getHash($curSubstring, $prevSubstring)
+    public function getHash($curSubstring, $prevSubstring = null)
     {
         $hash1 = sprintf('%08X', crc32($curSubstring));
         $hash2 = sprintf('%08X', crc32(strrev($curSubstring)));

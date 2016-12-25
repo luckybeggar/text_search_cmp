@@ -79,7 +79,7 @@ abstract class TSC_Hash
         ' ON DUPLICATE KEY UPDATE number = number +1';
     }
 
-    public function getHash($curSubstring, $prevSubstring)
+    public function getHash($curSubstring, $prevSubstring = null)
     {
         return $curSubstring;
     }
