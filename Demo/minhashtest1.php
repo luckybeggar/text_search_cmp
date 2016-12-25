@@ -7,10 +7,12 @@
  */
 
 require_once('cli.php');
+require_once('TSC/NGramParser.php');
 require_once('TSC/Hash.php');
 require_once('TSC/Minhash.php');
-require_once('TSC/Hash/Murmur3.php');
+require_once('TSC/Hash/CRC64.php');
 require_once('TSC/Megashingles.php');
+
 
 $logger = new Common_Logger(8);
 $logger->info('hello!');
@@ -19,10 +21,28 @@ $minhashConfig = array(
 'nof_functions' => 84,
 'init_mode' => 'new_functions'
 );
-$murmur3 = new TSC_Hash_Murmur3(array(), new ArrayObject(), $logger);
-$minhash = new TSC_Minhash($minhashConfig, $murmur3, $logger);
-$megashingles = new TSC_Megashingles(array('supershingle_size' => 14), $logger);
-$testSet1 = range(1,2000);
+$hasher        = new TSC_Hash_CRC64(array(), new ArrayObject(), $logger);
+$minhash       = new TSC_Minhash($minhashConfig, $hasher, $logger);
+$megashingles  = new TSC_Megashingles(array('supershingle_size' => 14, 'hash_byte_size' => 8), $logger);
+$parser        = new TSC_NGramParser(5, $logger);
+
+$testText = 'Правило альтернанса вызывает дольник. Субъективное восприятие, несмотря на то, что все эти характерологические черты отсылают не к единому образу нарратора, нивелирует мифологический ритмический рисунок. Субъективное восприятие последовательно. Впечатление отталкивает символ.'.
+' Слово, чтобы уловить хореический ритм или аллитерацию на "л", аннигилирует былинный генезис свободного стиха, также необходимо сказать о сочетании метода апроприации художественных стилей прошлого с авангардистскими стратегиями. Если архаический миф не знал противопоставления реальности тексту, филологическое суждение аллитерирует урбанистический дактиль. Различное расположение вызывает экзистенциальный контрапункт. ' .
+' Правило альтернанса редуцирует реформаторский пафос. Басня представляет собой орнаментальный сказ. Матрица, за счет использования параллелизмов и повторов на разных языковых уровнях, доступна. Кроме того, постоянно воспроизводится постулат о письме как о технике, обслуживающей язык, поэтому коммунальный модернизм дает возврат к стереотипам, таким образом постепенно смыкается с сюжетом. Жанр, чтобы уловить хореический ритм или аллитерацию на "л", традиционен.' .
+' Правило альтернанса, несмотря на внешние воздействия, аннигилирует композиционный анализ. Басня уязвима. Замысел, в первом приближении, редуцирует былинный образ. Диахрония, как справедливо считает И.Гальперин, диссонирует глубокий абстракционизм. Правило альтернанса, если уловить хореический ритм или аллитерацию на "р", кумулятивно.'.
+' Транстекстуальность, если уловить хореический ритм или аллитерацию на "р", отражает резкий голос персонажа. Басня представляет собой былинный амфибрахий. Существующая орфографическая символика никак не приспособлена для задач письменного воспроизведения смысловых нюансов устной речи, однако синекдоха иллюстрирует музыкальный строфоид. Первое полустишие, согласно традиционным представлениям, отталкивает дискурс. Транстекстуальность, несмотря на то, что все эти характерологические черты отсылают не к единому образу нарратора, отталкивает орнаментальный сказ.'.
+' Жирмунский, однако, настаивал, что первое полустишие представляет собой словесный анжамбеман. Олицетворение потенциально. Лицемерная мораль просветляет метафоричный одиннадцатисложник. Стиль осознаёт лирический реципиент.';
+
+$shingleList = $parser->parseText($testText);
+$prevShingle = null;
+$shingleHashList = array();
+foreach ($shingleList as $shingle) {
+    $shingleHashList[] = $hasher->getHash($shingle, $prevShingle);
+}
+$logger->info('SHINGLE HASJ LIST: ' . print_r($shingleHashList, 1));
+
+//$testSet1 = range(1,2000);
+$testSet1 = $shingleHashList;
 
 $logger->info('original set legth is: '. count($testSet1));
 
@@ -31,6 +51,6 @@ $tesminiset = $minhash->getMinList($testSet1);
 
 $logger->info('minified set is: '. print_r($tesminiset,1));
 
-$megashingleList =  $megashingles->getMegashingles($tesminiset);
+$megashingleList =  $megashingles->getSupershingles($tesminiset);
 
-$logger->info('megashingles set is: '. print_r($megashingleList,1));
+$logger->info('super shingles set is: '. print_r($megashingleList,1));

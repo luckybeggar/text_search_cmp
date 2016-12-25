@@ -15,6 +15,8 @@ class TSC_Megashingles
 
     protected $supershingleSize = 10;
 
+    protected $hashByteSize = 8;
+
     protected $nofSupershingles = 10;
 
     protected $nofMegashingles = 10;
@@ -34,20 +36,56 @@ class TSC_Megashingles
      */
     public function __construct($config, $logger)
     {
-        self::$logger = $logger;
+        self::$logger           = $logger;
         $this->supershingleSize = $config['supershingle_size'];
+        $this->hashByteSize     = $config['hash_byte_size'];
     }
 
-    public function getMegashingles($shingleHashList)
+    public function getSupershingles($shingleHashList)
     {
-        sort($shingleHashList);
+//        sort($shingleHashList);
+        $formatLen  = $this->hashByteSize;
+        foreach ($shingleHashList as $sId => $shingleHash)
+        {
+            $shingleHash = base_convert($shingleHash, 10, 16);
+            $prefix = '';
+            if (mb_strlen($shingleHash)< $formatLen)
+            {
+                $prefix = str_repeat('0', $formatLen - mb_strlen($shingleHash));
+            }
+            $shingleHashList[$sId] = $prefix . $shingleHash;
+        }
+
         $shingleChunkedHashList = array_chunk($shingleHashList, $this->supershingleSize);
-        self::log('DEBUG CHUNKED: '. print_R($shingleChunkedHashList,1));
-        $superShingleList       = array();
+//        self::log('DEBUG CHUNKED: ' . print_r($shingleChunkedHashList, 1));
+        $superShingleList = array();
         foreach ($shingleChunkedHashList as $chunk) {
             $superShingleList[] = implode('', $chunk);
         }
-        self::log('DEBUG SH LIST: '. print_R($superShingleList,1));
+//        self::log('DEBUG SH LIST: ' . print_r($superShingleList, 1));
+
+
+
+        return $superShingleList;
+    }
+
+    public function getMegashingles2($shingleHashList)
+    {
+        sort($shingleHashList);
+        $formatLen  = $this->hashByteSize * 2;
+        $formatMask = '%0' . $formatLen . 'X';
+        foreach ($shingleHashList as $sId => $shingleHash)
+        {
+            $shingleHashList[$sId] = sprintf($formatMask, $shingleHash);
+        }
+        $shingleChunkedHashList = array_chunk($shingleHashList, $this->supershingleSize);
+        self::log('DEBUG CHUNKED: ' . print_r($shingleChunkedHashList, 1));
+        $superShingleList = array();
+        foreach ($shingleChunkedHashList as $chunk) {
+            $superShingleList[] = implode('', $chunk);
+        }
+        self::log('DEBUG SH LIST: ' . print_r($superShingleList, 1));
+
 
         $result = array();
         foreach ($superShingleList as $val1) {
@@ -60,4 +98,5 @@ class TSC_Megashingles
 
         return $result;
     }
+
 }
