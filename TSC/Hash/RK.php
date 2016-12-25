@@ -14,7 +14,7 @@ class TSC_Hash_RK extends TSC_Hash
      */
     public static $numBase = 0x100;
 
-    protected $p, $baseMod;
+    protected $p, $baseMod, $curSubstring;
 
     protected static $abc = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ ';
 
@@ -70,6 +70,8 @@ class TSC_Hash_RK extends TSC_Hash
 
     public function getHash($curSubstring, $prevSubstring)
     {
+        $this->curSubstring = $curSubstring;
+
         if ($prevSubstring == null or 1) {
             $curHash = $this->circleByteHash($curSubstring);
         } else {
@@ -160,6 +162,10 @@ class TSC_Hash_RK extends TSC_Hash
     {
         $newOrd = $this->charToOrd($newChar);
         $hash   = gmp_mod(gmp_mul($hash, self::$numBase), $this->baseMod);
+        if(substr($hash, 0,1) == '-')
+        {
+            self::$logger->info('WRNING! hash with minus (' . $hash .') for subtring: ' . $this->curSubstring);
+        }
         $hash   = gmp_mod(gmp_add($hash, $newOrd), $this->baseMod);
         $hash   = gmp_strval($hash);
 
