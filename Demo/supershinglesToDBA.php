@@ -48,10 +48,10 @@ $hasher = new $hashClassName($indexConfig, $db, $logger);
 /**
  * @var TSC_Hash $hasher
  */
-$superConfig = $indexConfig['supershingle'];
-$minhasher        = new TSC_Hash_CRC64(array(), new ArrayObject(), $logger);
+$superConfig   = $indexConfig['supershingle'];
+$minhasher     = new TSC_Hash_CRC64(array(), new ArrayObject(), $logger);
 $minhash       = new TSC_Minhash($superConfig, $minhasher, $logger);
-$megashingles  = new TSC_Megashingles($superConfig, $minhasher, $logger);
+$supershingles = new TSC_Megashingles($superConfig, $minhasher, $logger);
 $logger->info('DEBUG SUPERCONFIG: ' . print_r($superConfig, 1));
 
 $dbaTextToHash = dba_open($projectPath . '/' . $indexConfig['dba_superhash_to_text'], 'n', $indexConfig['dba_engine']);
@@ -109,10 +109,10 @@ do {
             $shingleHashList[] = $hasher->getHash($shingle, $prevShingle);
             $prevShingle = $shingle;
         }
-        $miniSet = $minhash->getMinList($shingleHashList);
-        $megashingleList =  $megashingles->getSupershingles($miniSet);
+        $miniSet          = $minhash->getMinList($shingleHashList);
+        $supershingleList =  $supershingles->getSupershingles($miniSet);
 
-        foreach ($megashingleList as $curHash) {
+        foreach ($supershingleList as $curHash) {
             if (dba_exists($curHash, $dbaHashToText)) {
                 $textIdListLine = dba_fetch($curHash, $dbaHashToText);
                 $textIdListLine .= ',' . $textMeta['id'];
@@ -128,7 +128,7 @@ do {
                 dba_insert($curHash, 1, $dbaHashCount);
             }
         }
-        dba_insert((int)$textMeta['id'], json_encode($megashingleList), $dbaTextToHash);
+        dba_insert((int)$textMeta['id'], json_encode($supershingleList), $dbaTextToHash);
     }
 } while (count($textList) > 0);
 
