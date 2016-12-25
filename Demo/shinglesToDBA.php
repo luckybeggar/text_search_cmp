@@ -84,7 +84,6 @@ do {
     }
 
     $textNum = 1;
-    $db->beginTransaction();
 
     foreach ($textList as $textId => $textMeta) {
         $idFrom      = $textId;
@@ -119,5 +118,4 @@ do {
         }
         dba_insert((int)$textMeta['id'], json_encode($shingleMeta), $dbaTextToHash);
     }
-    $db->commit();
 } while (count($textList) > 0);
