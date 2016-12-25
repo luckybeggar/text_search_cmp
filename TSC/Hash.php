@@ -83,4 +83,9 @@ abstract class TSC_Hash
     {
         return $curSubstring;
     }
+
+    public function getHashByteLength()
+    {
+        return 8;
+    }
 }
