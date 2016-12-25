@@ -19,6 +19,8 @@ class TSC_Hash_CRC64 extends TSC_Hash
 
     public function getHash($curSubstring, $prevSubstring)
     {
-        return crc32($curSubstring) . crc32(strrev($curSubstring));
+        $hash1 = sprintf('%08X', crc32($curSubstring));
+        $hash2 = sprintf('%08X', crc32(strrev($curSubstring)));
+        return base_convert($hash1.$hash2, 16, 10);
     }
 }
