@@ -9,7 +9,7 @@
 class TSC_Hash_RK extends TSC_Hash
 {
     /**
-     * 2 bytes for store one char
+     * 1 byte for store one char
      * @var int
      */
     public static $numBase = 0x100;
