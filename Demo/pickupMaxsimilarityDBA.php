@@ -79,7 +79,7 @@ fputcsv($csvOutput, array(
 
 $nofNonUniqueText = 0;
 
-for ($curTextId = dba_firstkey($dbaNonUniqueText); $curTextId != false; $curTextId = dba_nextkey($dbaNonUniqueText))
+for ($curTextId = dba_firstkey($dbaNonUniqueText); $curTextId !== false; $curTextId = dba_nextkey($dbaNonUniqueText))
 {
     $curTextMetaLine = dba_fetch($curTextId, $dbaNonUniqueText);
     $curTextMeta = json_decode($curTextMetaLine, true);

@@ -63,7 +63,7 @@ $limits   = $db->query($sqlCount, PDO::FETCH_OBJ)->fetchObject();
 $logger->info('result: ' . print_r($limits, 1));
 
 $dupNum = 0;
-for ($curHashId = dba_firstkey($dbaCollisions); $curHashId != false; $curHashId = dba_nextkey($dbaCollisions))
+for ($curHashId = dba_firstkey($dbaCollisions); $curHashId !== false; $curHashId = dba_nextkey($dbaCollisions))
 {
     $dupNum = bcadd($dupNum, 1);
     $curCollisionListLine = dba_fetch($curHashId, $dbaCollisions);
