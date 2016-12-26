@@ -54,7 +54,7 @@ $dbaNonUniqueSuperText = dba_open($projectPath . '/' . $indexConfig['dba_non_uni
 if ($dbaNonUniqueText === false) {
     throw new Exception('cant open non unique dba');
 }
-if ($dbaNonUniqueSuperTexts === false) {
+if ($dbaNonUniqueSuperText === false) {
     throw new Exception('cant open non unique dba');
 }
 
