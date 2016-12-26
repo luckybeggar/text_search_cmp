@@ -19,7 +19,7 @@ $logger = new Common_Logger(8);
 $currentIndex = $config['current']['index'];
 $indexConfig  = $config[$currentIndex];
 
-$logOutput = $projectPath. '/Demo/' . $indexConfig['log_pickup_file'];
+$logOutput = $projectPath. '/Demo/' . $indexConfig['log_compare_file'];
 $logger->info('log file: ' . $logOutput);
 $logger->registerOutput($logOutput);
 
