@@ -102,6 +102,7 @@ do {
         $idFrom      = $textId;
         $shingleList = $parser->parseText($textMeta['article_text']);
         $logger->info('TEXT ID/NUM: ' . $textId . ' / '. $textNum);
+        $logger->info('TEXT META: ' . json_encode($textMeta));
         $textNum++;
 
         $prevShingle = null;
