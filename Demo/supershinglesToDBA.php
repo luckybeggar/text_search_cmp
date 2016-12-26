@@ -23,9 +23,10 @@ $logger = new Common_Logger(8);
 $currentIndex = $config['current']['index'];
 $indexConfig  = $config[$currentIndex];
 
-//$logOutput = $projectPath. '/Demo/' . $indexConfig['log_file'];
-//$logger->info('log file: ' . $logOutput);
-//$logger->registerOutput($logOutput);
+$logOutput = $projectPath. '/Demo/' . $indexConfig['log_super_file'];
+$logger->info('log file: ' . $logOutput);
+$logger->registerOutput($logOutput);
+
 $logger->info('index: ' . $currentIndex);
 $logger->info('index config: ' . print_r($indexConfig, 1));
 
