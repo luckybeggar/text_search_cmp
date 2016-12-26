@@ -77,11 +77,13 @@ fputcsv($csvOutput, array(
     'text_id',  'sim',     'sim_id',     'inc_inner',     'inc_inner_id',     'out_inner',     'out_inner_id',
 ));
 
+$nofNonUniqueText = 0;
 
 for ($curTextId = dba_firstkey($dbaNonUniqueText); $curTextId != false; $curTextId = dba_nextkey($dbaNonUniqueText))
 {
     $curTextMetaLine = dba_fetch($curTextId, $dbaNonUniqueText);
     $curTextMeta = json_decode($curTextMetaLine, true);
+    $nofNonUniqueText++;
     if($curTextMeta['sim']<0.7)
     {
         continue;
@@ -93,9 +95,13 @@ for ($curTextId = dba_firstkey($dbaNonUniqueText); $curTextId != false; $curText
 }
 
 fputcsv($csvOutput, array('NOF TEXTS: ' . count($textList)));
+fputcsv($csvOutput, array('NOF NON UNIQUE TEXTS: ' . $nofNonUniqueText));
+
 fclose($csvOutput);
 
 $logger->info('NOF TEXTS: '  . count($textList));
+$logger->info('NOF NON UNIQUE TEXTS: ' . $nofNonUniqueText);
+
 $logger->info('TEXTS: '  . implode(',', array_keys($textList)));
 
 
