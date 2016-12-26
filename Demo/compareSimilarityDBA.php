@@ -76,7 +76,6 @@ for ($curTextId = dba_firstkey($dbaNonUniqueText); $curTextId !== false; $curTex
 $logger->info('NOF TEXTS: '  . count($textList));
 $logger->info('NOF NON UNIQUE TEXTS: ' . $nofNonUniqueText);
 $textFullIdList = array_keys($textList);
-$logger->info('TEXTS: '  . implode(',', array_keys($textList)));
 
 $textSuperList = array();
 for ($curTextId = dba_firstkey($dbaNonUniqueSuperText); $curTextId !== false; $curTextId = dba_nextkey($dbaNonUniqueSuperText))
@@ -86,10 +85,13 @@ for ($curTextId = dba_firstkey($dbaNonUniqueSuperText); $curTextId !== false; $c
     $logger->info('TEXT ID #' . $curTextId . ': ' . print_r($curTextMeta,1));
     $textSuperList[$curTextId] = $curTextMeta;
 }
+$textSuperIdList = array_keys($textSuperList);
 
 $logger->info('NOF SUPER TEXTS: '  . count($textSuperList));
-$logger->info('SUPER TEXTS: '  . implode(',', array_keys($textSuperList)));
-$textSuperIdList = array_keys($textSuperList);
+$logger->info('SUPER TEXTS: '  . implode(',', $textSuperIdList));
+$logger->info('TEXTS: '  . implode(',', $textFullIdList));
+
+
 
 $missedIdList = array_diff($textFullIdList, $textSuperIdList);
 $logger->info('MISSED TEXTS: '  . implode(',', array_keys($missedIdList)));
