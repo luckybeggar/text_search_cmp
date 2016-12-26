@@ -87,6 +87,9 @@ for ($curTextId = dba_firstkey($dbaNonUniqueSuperText); $curTextId !== false; $c
 }
 $textSuperIdList = array_keys($textSuperList);
 
+array_walk($textFullIdList, 'intval');
+array_walk($textSuperIdList, 'intval');
+
 $logger->info('NOF SUPER TEXTS: '  . count($textSuperList));
 $logger->info('SUPER TEXTS: '  . implode(',', $textSuperIdList));
 $logger->info('TEXTS: '  . implode(',', $textFullIdList));
