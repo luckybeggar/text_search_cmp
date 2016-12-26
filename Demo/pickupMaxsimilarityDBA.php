@@ -69,6 +69,15 @@ if ($dbaTextToHash === false) {
 
 $textList = array();
 
+
+$fileCsvSimilarityPath = $indexConfig['csv_similarity'];
+$logger->info('similar file list: ' . $fileCsvSimilarityPath);
+$csvOutput = fopen($fileCsvSimilarityPath, 'w');
+fputcsv($csvOutput, array(
+    'text_id',  'sim',     'sim_id',     'inc_inner',     'inc_inner_id',     'out_inner',     'out_inner_id',
+));
+
+
 for ($curTextId = dba_firstkey($dbaNonUniqueText); $curTextId != false; $curTextId = dba_nextkey($dbaNonUniqueText))
 {
     $curTextMetaLine = dba_fetch($curTextId, $dbaNonUniqueText);
@@ -79,8 +88,12 @@ for ($curTextId = dba_firstkey($dbaNonUniqueText); $curTextId != false; $curText
     }
     $logger->info('TEXT ID #' . $curTextId . ': ' . print_r($curTextMeta,1));
     $textList[$curTextId] = $curTextMeta;
-
+    $curTextMetaExport = array('text_id' => $curTextId) + $curTextMeta;
+    fputcsv($csvOutput, $curTextMetaExport);
 }
+
+fputcsv($csvOutput, array('NOF TEXTS: ' . count($textList)));
+fclose($csvOutput);
 
 $logger->info('NOF TEXTS: '  . count($textList));
 $logger->info('TEXTS: '  . implode(',', array_keys($textList)));
@@ -97,7 +110,6 @@ $sqlGetText = "SELECT
  {$sourceConfig['input_text_id_field']} = :id_text_dup
  
  ";
-
 
 
 foreach ($textList as $textId => $textSimMeta)
