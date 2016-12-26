@@ -20,7 +20,7 @@ $logger = new Common_Logger(8);
 $currentIndex = $config['current']['index'];
 $indexConfig  = $config[$currentIndex];
 
-$logOutput = $projectPath. '/Demo/' . $indexConfig['log_file'];
+$logOutput = $projectPath. '/Demo/' . $indexConfig['log_file_collisions'];
 $logger->info('log file: ' . $logOutput);
 $logger->registerOutput($logOutput);
 $logger->info('index: ' . $currentIndex);
