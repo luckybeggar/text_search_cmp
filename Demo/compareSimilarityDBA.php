@@ -71,7 +71,6 @@ for ($curTextId = dba_firstkey($dbaNonUniqueText); $curTextId !== false; $curTex
     }
     $logger->info('TEXT ID #' . $curTextId . ': ' . print_r($curTextMeta,1));
     $textList[$curTextId] = $curTextMeta;
-    $curTextMetaExport = array('text_id' => $curTextId) + $curTextMeta;
 }
 $logger->info('NOF TEXTS: '  . count($textList));
 $logger->info('NOF NON UNIQUE TEXTS: ' . $nofNonUniqueText);
@@ -101,3 +100,10 @@ $logger->info('MISSED TEXTS: '  . implode(',', $missedIdList));
 
 $wrongIdList = array_diff($textSuperIdList, $textFullIdList);
 $logger->info('WRONG TEXTS: '  . implode(',', $wrongIdList));
+foreach ($wrongIdList as $curTextId)
+{
+    $curTextMetaLine = dba_fetch($curTextId, $dbaNonUniqueText);
+    $curTextMeta = json_decode($curTextMetaLine, true);
+    $logger->info('WRONG TEXT ID #' . $curTextId . ': ' . print_r($curTextMeta,1));
+
+}
