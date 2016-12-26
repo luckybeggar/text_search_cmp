@@ -68,7 +68,7 @@ class TSC_Megashingles
         }
 
         $shingleChunkedHashList = array_chunk($shingleHashList, $this->supershingleSize);
-//        self::log('DEBUG CHUNKED: ' . print_r($shingleChunkedHashList, 1));
+        self::log('DEBUG CHUNKED: ' . print_r($shingleChunkedHashList, 1));
         $superShingleList = array();
         foreach ($shingleChunkedHashList as $chunk) {
             $superShingleList[] = $this->hash->getHash(implode('', $chunk));

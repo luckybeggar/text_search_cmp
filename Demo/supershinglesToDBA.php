@@ -101,7 +101,7 @@ do {
     foreach ($textList as $textId => $textMeta) {
         $idFrom      = $textId;
         $shingleList = $parser->parseText($textMeta['article_text']);
-        $logger->info('TEXT: ' . $textNum);
+        $logger->info('TEXT ID/NUM: ' . $textId . ' / '. $textNum);
         $textNum++;
 
         $prevShingle = null;
