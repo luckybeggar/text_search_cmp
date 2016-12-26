@@ -16,6 +16,19 @@ mb_internal_encoding($config['common']['encoding']);
 setlocale(LC_ALL, $config['common']['locale']);
 
 $logger = new Common_Logger(8);
+$currentIndex = $config['current']['index'];
+$indexConfig  = $config[$currentIndex];
+
+$logOutput = $projectPath. '/Demo/' . $indexConfig['log_pickup_file'];
+$logger->info('log file: ' . $logOutput);
+$logger->registerOutput($logOutput);
+
+
+$logger->info('index: ' . $currentIndex);
+$logger->info('index config: ' . print_r($indexConfig, 1));
+
+
+
 $parser = new TSC_NGramParser(5, $logger);
 
 $logger->info('db config: ' . print_r($config['db'], 1));
@@ -29,10 +42,6 @@ $sourceConfig  = $config[$currentSource];
 $logger->info('source: ' . $currentSource);
 $logger->info('source config: ' . print_r($sourceConfig, 1));
 
-$currentIndex = $config['current']['index'];
-$indexConfig  = $config[$currentIndex];
-$logger->info('index: ' . $currentIndex);
-$logger->info('index config: ' . print_r($indexConfig, 1));
 $hashClassName = $indexConfig['storage_hash_class'];
 include($indexConfig['storage_hash_file']);
 $hasher = new $hashClassName($indexConfig, $db, $logger);
