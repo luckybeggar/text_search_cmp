@@ -54,16 +54,16 @@ $minhash       = new TSC_Minhash($superConfig, $minhasher, $logger);
 $supershingles = new TSC_Megashingles($superConfig, $minhasher, $logger);
 $logger->info('DEBUG SUPERCONFIG: ' . print_r($superConfig, 1));
 
-$dbaTextToHash = dba_open($projectPath . '/' . $indexConfig['dba_superhash_to_text'], 'n', $indexConfig['dba_engine']);
-$dbaHashToText = dba_open($projectPath . '/' . $indexConfig['dba_text_to_superhash'], 'n', $indexConfig['dba_engine']);
-$dbaHashCount  = dba_open($projectPath . '/' . $indexConfig['dba_superhash_count'], 'n', $indexConfig['dba_engine']);
-if ($dbaHashCount === false) {
+$dbaTextToSuperhash = dba_open($projectPath . '/' . $indexConfig['dba_superhash_to_text'], 'n', $indexConfig['dba_engine']);
+$dbaSuperhashToText = dba_open($projectPath . '/' . $indexConfig['dba_text_to_superhash'], 'n', $indexConfig['dba_engine']);
+$dbaSuperhashCount  = dba_open($projectPath . '/' . $indexConfig['dba_superhash_count'], 'n', $indexConfig['dba_engine']);
+if ($dbaSuperhashCount === false) {
     throw new Exception('cant open counter dba');
 }
-if ($dbaHashToText === false) {
+if ($dbaSuperhashToText === false) {
     throw new Exception('cant open h2t dba');
 }
-if ($dbaTextToHash === false) {
+if ($dbaTextToSuperhash === false) {
     throw new Exception('cant open t2h dba');
 }
 
@@ -113,22 +113,22 @@ do {
         $supershingleList =  $supershingles->getSupershingles($miniSet);
 
         foreach ($supershingleList as $curHash) {
-            if (dba_exists($curHash, $dbaHashToText)) {
-                $textIdListLine = dba_fetch($curHash, $dbaHashToText);
+            if (dba_exists($curHash, $dbaSuperhashToText)) {
+                $textIdListLine = dba_fetch($curHash, $dbaSuperhashToText);
                 $textIdListLine .= ',' . $textMeta['id'];
-                dba_replace($curHash, $textIdListLine, $dbaHashToText);
+                dba_replace($curHash, $textIdListLine, $dbaSuperhashToText);
             } else {
-                dba_insert($curHash, $textMeta['id'], $dbaHashToText);
+                dba_insert($curHash, $textMeta['id'], $dbaSuperhashToText);
             }
-            if (dba_exists($curHash, $dbaHashCount)) {
-                $counter = dba_fetch($curHash, $dbaHashCount);
+            if (dba_exists($curHash, $dbaSuperhashCount)) {
+                $counter = dba_fetch($curHash, $dbaSuperhashCount);
                 $counter += 1;
-                dba_replace($curHash, $counter, $dbaHashCount);
+                dba_replace($curHash, $counter, $dbaSuperhashCount);
             } else {
-                dba_insert($curHash, 1, $dbaHashCount);
+                dba_insert($curHash, 1, $dbaSuperhashCount);
             }
         }
-        dba_insert((int)$textMeta['id'], json_encode($supershingleList), $dbaTextToHash);
+        dba_insert((int)$textMeta['id'], json_encode($supershingleList), $dbaTextToSuperhash);
     }
 } while (count($textList) > 0);
 
