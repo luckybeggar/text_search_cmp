@@ -97,7 +97,7 @@ $logger->info('TEXTS: '  . implode(',', $textFullIdList));
 
 
 $missedIdList = array_diff($textFullIdList, $textSuperIdList);
-$logger->info('MISSED TEXTS: '  . implode(',', array_keys($missedIdList)));
+$logger->info('MISSED TEXTS: '  . implode(',', $missedIdList));
 
 $wrongIdList = array_diff($textSuperIdList, $textFullIdList);
-$logger->info('WRONG TEXTS: '  . implode(',', array_keys($wrongIdList)));
+$logger->info('WRONG TEXTS: '  . implode(',', $wrongIdList));
