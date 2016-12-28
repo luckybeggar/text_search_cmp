@@ -110,8 +110,8 @@ foreach ($wrongIdList as $curTextId)
     $logger->info('WRONG TEXT ID #' . $curTextId . ': ' . print_r($curTextMeta,1));
 
 }
-$logger->info('FOUND ETALON: '  . count($textSuperIdList));
-$logger->info('FOUND SUPER: '  . count($textFullIdList));
+$logger->info('FOUND ETALON: '  . count($textFullIdList));
+$logger->info('FOUND SUPER: '  . count($textSuperIdList));
 
 $logger->info('NOF MISSED TEXTS: ' . $nofMissed);
 $logger->info('NOF WRONG TEXTS: ' . $nofWrong);
