@@ -107,3 +107,8 @@ foreach ($wrongIdList as $curTextId)
     $logger->info('WRONG TEXT ID #' . $curTextId . ': ' . print_r($curTextMeta,1));
 
 }
+$recall = count($textFullIdList)/(count($textFullIdList)-count($textSuperIdList));
+$logger->info('RECALL: '  . $recall);
+
+$precision = count($textFullIdList)/(count($textFullIdList)+count($wrongIdList));
+$logger->info('PRECISION: '  . $precision);
