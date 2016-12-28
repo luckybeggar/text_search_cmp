@@ -97,9 +97,12 @@ $logger->info('TEXTS: '  . implode(',', $textFullIdList));
 
 $missedIdList = array_diff($textFullIdList, $textSuperIdList);
 $logger->info('MISSED TEXTS: '  . implode(',', $missedIdList));
+$nofMissed = count($missedIdList);
 
 $wrongIdList = array_diff($textSuperIdList, $textFullIdList);
 $logger->info('WRONG TEXTS: '  . implode(',', $wrongIdList));
+$nofWrong = count($wrongIdList);
+
 foreach ($wrongIdList as $curTextId)
 {
     $curTextMetaLine = dba_fetch($curTextId, $dbaNonUniqueText);
@@ -110,9 +113,12 @@ foreach ($wrongIdList as $curTextId)
 $logger->info('FOUND ETALON: '  . count($textSuperIdList));
 $logger->info('FOUND SUPER: '  . count($textFullIdList));
 
+$logger->info('NOF MISSED TEXTS: ' . $nofMissed);
+$logger->info('NOF WRONG TEXTS: ' . $nofWrong);
 
-$recall = count($textFullIdList)/(count($textFullIdList)-count($textSuperIdList));
+
+$recall = count($textFullIdList)/(count($textFullIdList)+$nofMissed);
 $logger->info('RECALL: '  . $recall);
 
-$precision = count($textFullIdList)/(count($textFullIdList)+count($wrongIdList));
+$precision = count($textFullIdList)/(count($textFullIdList)+$nofWrong);
 $logger->info('PRECISION: '  . $precision);
