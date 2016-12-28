@@ -107,6 +107,10 @@ foreach ($wrongIdList as $curTextId)
     $logger->info('WRONG TEXT ID #' . $curTextId . ': ' . print_r($curTextMeta,1));
 
 }
+$logger->info('FOUND ETALON: '  . count($textSuperIdList));
+$logger->info('FOUND SUPER: '  . count($textFullIdList));
+
+
 $recall = count($textFullIdList)/(count($textFullIdList)-count($textSuperIdList));
 $logger->info('RECALL: '  . $recall);
 
